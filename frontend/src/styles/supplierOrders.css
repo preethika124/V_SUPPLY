@@ -1,0 +1,224 @@
+.supplier-orders-page{
+
+ max-width:1200px;
+
+ margin:40px auto;
+
+ padding:20px;
+
+}
+
+.supplier-orders-header{
+
+ margin-bottom:30px;
+
+}
+
+.supplier-orders-header h1{
+
+ font-size:36px;
+
+ color:#1e293b;
+
+ font-weight:700;
+
+}
+
+.empty-orders{
+
+ background:white;
+
+ padding:50px;
+
+ text-align:center;
+
+ border-radius:16px;
+
+ color:#64748b;
+
+ box-shadow:
+ 0 4px 15px
+ rgba(0,0,0,0.05);
+
+}
+
+.supplier-order-card{
+
+ background:white;
+
+ border-radius:18px;
+
+ padding:25px;
+
+ margin-bottom:20px;
+
+ box-shadow:
+ 0 4px 15px
+ rgba(0,0,0,0.08);
+
+ transition:0.2s;
+
+}
+
+.supplier-order-card:hover{
+
+ transform:
+ translateY(-4px);
+
+}
+
+.supplier-order-top{
+
+ display:flex;
+
+ justify-content:
+ space-between;
+
+ align-items:flex-start;
+
+ margin-bottom:25px;
+
+}
+
+.supplier-order-top h3{
+
+ color:#1e293b;
+
+ margin-bottom:12px;
+
+}
+
+.supplier-order-top p{
+
+ color:#475569;
+
+ margin:8px 0;
+
+}
+
+.supplier-order-bottom{
+
+ display:flex;
+
+ gap:80px;
+
+ border-top:
+ 1px solid #e2e8f0;
+
+ padding-top:20px;
+
+ margin-top:10px;
+
+}
+
+.supplier-order-bottom p{
+
+ color:#64748b;
+
+ margin-bottom:6px;
+
+}
+
+.supplier-order-bottom h2{
+
+ color:#2563eb;
+
+}
+
+.status-badge{
+
+ padding:8px 18px;
+
+ border-radius:999px;
+
+ font-size:14px;
+
+ font-weight:600;
+
+}
+
+.pending{
+
+ background:#fef3c7;
+
+ color:#92400e;
+
+}
+
+.accepted{
+
+ background:#dcfce7;
+
+ color:#166534;
+
+}
+
+.rejected{
+
+ background:#fee2e2;
+
+ color:#991b1b;
+
+}
+
+.order-actions{
+
+ display:flex;
+
+ gap:15px;
+
+ margin-top:25px;
+
+}
+
+.accept-btn{
+
+ padding:12px 24px;
+
+ border:none;
+
+ border-radius:10px;
+
+ background:#16a34a;
+
+ color:white;
+
+ font-weight:600;
+
+ cursor:pointer;
+
+ transition:0.2s;
+
+}
+
+.accept-btn:hover{
+
+ background:#15803d;
+
+}
+
+.reject-btn{
+
+ padding:12px 24px;
+
+ border:none;
+
+ border-radius:10px;
+
+ background:#dc2626;
+
+ color:white;
+
+ font-weight:600;
+
+ cursor:pointer;
+
+ transition:0.2s;
+
+}
+
+.reject-btn:hover{
+
+ background:#b91c1c;
+
+}

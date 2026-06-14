@@ -1,0 +1,122 @@
+.my-products-page{
+
+    max-width:1400px;
+
+    margin:40px auto;
+
+    padding:20px;
+
+}
+
+.my-products-header{
+
+    margin-bottom:30px;
+
+}
+
+.my-products-header h1{
+
+    font-size:36px;
+
+    color:#1e293b;
+
+}
+
+.my-products-grid{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:25px;
+
+}
+
+.my-product-card{
+
+    width:300px;
+
+    background:white;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 4px 15px
+    rgba(0,0,0,0.08);
+
+    transition:0.2s;
+
+}
+
+.my-product-card:hover{
+
+    transform:
+    translateY(-5px);
+
+}
+
+.my-product-image{
+
+    width:300px;
+
+    height:180px;
+
+    object-fit:cover;
+
+    display:block;
+
+}
+
+.my-product-content{
+
+    padding:16px;
+
+}
+
+.my-product-content h3{
+
+    margin-bottom:12px;
+
+    font-size:22px;
+
+    color:#1e293b;
+
+}
+
+.my-product-content p{
+
+    margin:8px 0;
+
+    color:#475569;
+
+}
+
+.my-delete-btn{
+
+    width:100%;
+
+    margin-top:15px;
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    background:#dc2626;
+
+    color:white;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+}
+
+.my-delete-btn:hover{
+
+    background:#b91c1c;
+
+}

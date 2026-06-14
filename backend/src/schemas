@@ -1,0 +1,211 @@
+CREATE TABLE users(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    name VARCHAR(100) NOT NULL,
+
+    email VARCHAR(255)
+    UNIQUE NOT NULL,
+
+    password_hash TEXT NOT NULL,
+
+    role VARCHAR(20) NOT NULL,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE vendors(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    user_id UUID UNIQUE NOT NULL,
+
+    shop_name VARCHAR(255),
+
+    phone VARCHAR(20),
+
+    FOREIGN KEY(user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+CREATE TABLE suppliers(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    user_id UUID UNIQUE NOT NULL,
+
+    company_name VARCHAR(255),
+
+    gst_number VARCHAR(50),
+
+    phone VARCHAR(20),
+
+    status VARCHAR(20)
+    DEFAULT 'PENDING',
+
+    FOREIGN KEY(user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+CREATE TABLE products(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    supplier_id UUID NOT NULL,
+
+    category_id UUID NOT NULL,
+
+    name VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    price DECIMAL(10,2) NOT NULL,
+
+    stock INTEGER NOT NULL,
+
+    unit VARCHAR(20) NOT NULL,
+
+    minimum_order_quantity INTEGER NOT NULL,
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(supplier_id)
+    REFERENCES suppliers(id),
+
+    FOREIGN KEY(category_id)
+    REFERENCES categories(id)
+);
+
+CREATE TABLE orders(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    vendor_id UUID NOT NULL,
+
+    supplier_id UUID NOT NULL,
+
+    total_amount DECIMAL(12,2)
+    NOT NULL,
+
+    status VARCHAR(30)
+    DEFAULT 'PENDING',
+
+    payment_status VARCHAR(30)
+    DEFAULT 'PENDING',
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(vendor_id)
+    REFERENCES vendors(id),
+
+    FOREIGN KEY(supplier_id)
+    REFERENCES suppliers(id)
+);
+CREATE TABLE order_items(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    order_id UUID NOT NULL,
+
+    product_id UUID NOT NULL,
+
+    quantity INTEGER NOT NULL,
+
+    unit_price DECIMAL(10,2)
+    NOT NULL,
+
+    line_total DECIMAL(12,2)
+    NOT NULL,
+
+    FOREIGN KEY(order_id)
+    REFERENCES orders(id),
+
+    FOREIGN KEY(product_id)
+    REFERENCES products(id)
+);
+CREATE TABLE carts(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    vendor_id UUID NOT NULL UNIQUE,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(vendor_id)
+    REFERENCES vendors(id)
+);
+
+CREATE TABLE cart_items(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    cart_id UUID NOT NULL,
+
+    product_id UUID NOT NULL,
+
+    quantity INTEGER NOT NULL,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(cart_id)
+    REFERENCES carts(id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY(product_id)
+    REFERENCES products(id)
+);
+
+ALTER TABLE cart_items
+ADD CONSTRAINT unique_cart_product
+UNIQUE(cart_id, product_id);
+
+ALTER TABLE orders
+ADD COLUMN shipped_at TIMESTAMP;
+
+ALTER TABLE orders
+ADD COLUMN delivered_at TIMESTAMP;
+
+CREATE TABLE notifications(
+
+    id UUID PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+    user_id UUID NOT NULL,
+
+    title VARCHAR(255) NOT NULL,
+
+    message TEXT NOT NULL,
+
+    is_read BOOLEAN DEFAULT FALSE,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(user_id)
+    REFERENCES users(id)
+);
+
+ALTER TABLE orders
+ADD COLUMN payment_status
+VARCHAR(20)
+DEFAULT 'PENDING';
+
+ALTER TABLE orders
+ADD COLUMN payment_id
+VARCHAR(255);
+
+ALTER TABLE orders
+ADD COLUMN razorpay_order_id
+VARCHAR(255);
