@@ -67,20 +67,7 @@ router.put(
  verifiedSupplier,
  orderController.rejectOrder
 );
-router.put(
- "/:id/ship",
- authenticate,
- authorizeRole("SUPPLIER"),
- verifiedSupplier,
- orderController.shipOrder
-);
-router.put(
- "/:id/deliver",
- authenticate,
- authorizeRole("SUPPLIER"),
- verifiedSupplier,
- orderController.deliverOrder
-);
+
 router.get(
  "/:id/details",
  authenticate,

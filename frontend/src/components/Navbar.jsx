@@ -16,30 +16,7 @@ localStorage.getItem(
 
 let homeLink = "/";
 
-if(
-    role === "ADMIN"
-){
 
-    homeLink =
-    "/admin";
-
-}
-else if(
-    role === "SUPPLIER"
-){
-
-    homeLink =
-    "/supplier-dashboard";
-
-}
-else if(
-    role === "VENDOR"
-){
-
-    homeLink =
-    "/vendor-dashboard";
-
-}
 
     const logout = () => {
 

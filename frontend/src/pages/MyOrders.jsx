@@ -90,7 +90,6 @@ function MyOrders(){
    </div>
 
    {
-
     orders.length === 0 &&
 
     <div
@@ -101,11 +100,9 @@ function MyOrders(){
      No Orders Found
 
     </div>
-
    }
 
    {
-
     orders.map(
      order=>(
 
@@ -134,6 +131,24 @@ function MyOrders(){
          </h3>
 
          <p>
+
+          Supplier
+
+         </p>
+
+         <strong>
+
+          {
+           order.company_name
+          }
+
+         </strong>
+
+         <p
+          style={{
+           marginTop:"10px"
+          }}
+         >
 
           Total Amount
 
@@ -180,7 +195,6 @@ function MyOrders(){
         "order-bottom"
        >
 
-       
         <div>
 
          <p>
@@ -208,7 +222,6 @@ function MyOrders(){
 
      )
     )
-
    }
 
   </div>

@@ -21,6 +21,59 @@ export const createProduct =
  );
 
 };
+export const updateProduct = (
+  id,
+  formData,
+  token
+) => {
+
+  return axios.put(
+
+    `${BASE_URL}/${id}`,
+
+    formData,
+
+    {
+      headers: {
+        Authorization:
+        `Bearer ${token}`
+      }
+    }
+
+  );
+
+};
+
+export const semanticSearch =
+(search)=>{
+
+ return axios.get(
+
+  `${BASE_URL}/semantic-search?search=${search}`
+
+ );
+
+};
+export const generateDescription =
+(data, token)=>{
+
+ console.log(
+  "TOKEN RECEIVED:",
+  token
+ );
+
+ return axios.post(
+  `${BASE_URL}/generate-description`,
+  data,
+  {
+   headers:{
+    Authorization:
+    `Bearer ${token}`
+   }
+  }
+ );
+
+};
 
 export const getMyProducts =
 (token)=>{

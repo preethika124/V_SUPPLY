@@ -167,45 +167,35 @@ CREATE TABLE cart_items(
     REFERENCES products(id)
 );
 
+CREATE TABLE product_embeddings(
+
+    product_id UUID
+    PRIMARY KEY
+
+    REFERENCES products(id)
+    ON DELETE CASCADE,
+
+    embedding JSONB NOT NULL,
+
+    created_at TIMESTAMP
+    DEFAULT CURRENT_TIMESTAMP
+
+);
+
+// category table contains category id and category name
+
 ALTER TABLE cart_items
 ADD CONSTRAINT unique_cart_product
 UNIQUE(cart_id, product_id);
 
-ALTER TABLE orders
-ADD COLUMN shipped_at TIMESTAMP;
+CREATE INDEX idx_products_supplier
+ON products(supplier_id);
 
-ALTER TABLE orders
-ADD COLUMN delivered_at TIMESTAMP;
+CREATE INDEX idx_orders_supplier
+ON orders(supplier_id);
 
-CREATE TABLE notifications(
+CREATE INDEX idx_orders_vendor
+ON orders(vendor_id);
 
-    id UUID PRIMARY KEY
-    DEFAULT gen_random_uuid(),
-
-    user_id UUID NOT NULL,
-
-    title VARCHAR(255) NOT NULL,
-
-    message TEXT NOT NULL,
-
-    is_read BOOLEAN DEFAULT FALSE,
-
-    created_at TIMESTAMP
-    DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(user_id)
-    REFERENCES users(id)
-);
-
-ALTER TABLE orders
-ADD COLUMN payment_status
-VARCHAR(20)
-DEFAULT 'PENDING';
-
-ALTER TABLE orders
-ADD COLUMN payment_id
-VARCHAR(255);
-
-ALTER TABLE orders
-ADD COLUMN razorpay_order_id
-VARCHAR(255);
+CREATE INDEX idx_order_items_order
+ON order_items(order_id);

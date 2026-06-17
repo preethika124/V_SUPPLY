@@ -38,10 +38,20 @@ async function getVendorOrders(
     const result =
     await db.query(
         `
-        SELECT *
-        FROM orders
-        WHERE vendor_id = $1
-        ORDER BY created_at DESC
+        SELECT
+
+            o.*,
+
+            s.company_name
+
+        FROM orders o
+
+        JOIN suppliers s
+        ON o.supplier_id = s.id
+
+        WHERE o.vendor_id = $1
+
+        ORDER BY o.created_at DESC
         `,
         [vendorId]
     );

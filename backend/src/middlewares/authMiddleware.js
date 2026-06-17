@@ -10,6 +10,7 @@ async function authenticate(
 
   const authHeader =
   req.headers.authorization;
+  
 
   if(!authHeader){
 
@@ -28,6 +29,8 @@ async function authenticate(
    token,
    process.env.JWT_SECRET
   );
+
+ 
 
   req.user = decoded;
 

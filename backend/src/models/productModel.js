@@ -71,6 +71,39 @@ async function reduceStock(
     return result.rows[0];
 
 }
+async function getProductsByIds(
+ ids
+){
+
+ const result =
+ await db.query(
+ `
+ SELECT
+
+  p.*,
+
+  c.name AS category_name,
+
+  s.company_name
+
+ FROM products p
+
+ JOIN categories c
+ ON p.category_id = c.id
+
+ JOIN suppliers s
+ ON p.supplier_id = s.id
+
+ WHERE p.id = ANY($1)
+
+ AND p.is_active = true
+ `,
+ [ids]
+ );
+
+ return result.rows;
+
+}
 async function getSupplierProducts(
     supplierId
 ) {
@@ -141,7 +174,7 @@ async function getProductByIdAndSupplier(
 
 async function updateProduct(
     productId,
-    categoryId,
+  
     name,
     description,
     imageUrl,
@@ -156,21 +189,21 @@ async function updateProduct(
         UPDATE products
         SET
 
-            category_id = $1,
-            name = $2,
-            description = $3,
-            image_url = $4,
-            price = $5,
-            stock = $6,
-            unit = $7,
-            minimum_order_quantity = $8
+            
+            name = $1,
+            description = $2,
+            image_url = $3,
+            price = $4,
+            stock = $5,
+            unit = $6,
+            minimum_order_quantity = $7
 
-        WHERE id = $9
+        WHERE id = $8
 
         RETURNING *
         `,
         [
-            categoryId,
+         
             name,
             description,
             imageUrl,
@@ -298,5 +331,8 @@ module.exports = {
     getAllProducts,
 
     searchProducts,
-    reduceStock
+    reduceStock,
+    
+
+ getProductsByIds
 };

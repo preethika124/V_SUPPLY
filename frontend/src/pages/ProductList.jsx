@@ -4,7 +4,8 @@ from "react";
 import {
 
  getAllProducts,
- searchProducts
+ searchProducts,
+ semanticSearch
 
 }
 from "../services/productService";
@@ -83,18 +84,18 @@ function Products(){
  };
 
  const handleSearch =
- async()=>{
+async()=>{
 
-  const response =
-  await searchProducts(
-   search
-  );
+ const response =
+ await semanticSearch(
+  search
+ );
 
-  setProducts(
+ setProducts(
    response.data
-  );
+ );
 
- };
+};
 
  const isInCart =
  (productId)=>{
@@ -258,6 +259,13 @@ function Products(){
           {
            product.company_name
           }
+
+         </p>
+          <p>
+
+          
+          {product.description}
+          
 
          </p>
 

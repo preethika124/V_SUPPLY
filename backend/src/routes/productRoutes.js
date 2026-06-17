@@ -104,6 +104,30 @@ router.delete(
  .deleteProduct
 
 );
+
+router.get(
+
+ "/semantic-search",
+
+ productController
+ .semanticSearch
+
+);
+router.post(
+
+ "/generate-description",
+
+ authenticate,
+
+ authorizeRole(
+  "SUPPLIER"
+ ),
+
+ productController
+ .generateDescription
+
+);
+
 router.get(
 
  "/",

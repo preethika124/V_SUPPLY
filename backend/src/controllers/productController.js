@@ -4,6 +4,175 @@ require("../models/productModel");
 const Category =
 require("../models/categoryModel");
 
+const axios =
+require("axios");
+
+const ProductEmbedding =
+require(
+ "../models/productEmbeddingModel"
+);
+
+async function semanticSearch(
+ req,
+ res
+){
+
+ try{
+
+  const search =
+  req.query.search;
+
+  const queryEmbedding =
+  await axios.post(
+
+   "http://localhost:8000/generate-embedding",
+
+   {
+    text: search
+   }
+
+  );
+
+  const queryVector =
+  queryEmbedding
+  .data
+  .embedding;
+
+  const embeddings =
+  await ProductEmbedding
+  .getAllEmbeddings();
+
+  const similarities =
+  embeddings.map(
+   item=>{
+
+    const storedVector =
+    item.embedding;
+
+    let dot = 0;
+
+    let normA = 0;
+
+    let normB = 0;
+
+    for(
+     let i=0;
+     i<queryVector.length;
+     i++
+    ){
+
+     dot +=
+     queryVector[i] *
+     storedVector[i];
+
+     normA +=
+     queryVector[i] *
+     queryVector[i];
+
+     normB +=
+     storedVector[i] *
+     storedVector[i];
+
+    }
+
+    const score =
+    dot /
+    (
+     Math.sqrt(normA)
+     *
+     Math.sqrt(normB)
+    );
+
+    return {
+
+     productId:
+     item.product_id,
+
+     score
+
+    };
+
+   }
+  );
+
+  similarities.sort(
+   (a,b)=>
+
+   b.score -
+   a.score
+  );
+
+  const productIds =
+similarities
+
+ .filter(
+  item =>
+  item.score > 0.5
+ )
+
+ .slice(0,20)
+
+ .map(
+  item =>
+  item.productId
+ );
+  const products =
+  await Product
+  .getProductsByIds(
+   productIds
+  );
+
+  res.json(
+   products
+  );
+
+ }
+ catch(err){
+
+  res.status(500)
+  .json({
+   message:
+   err.message
+  });
+
+ }
+
+}
+
+async function generateDescription(
+ req,
+ res
+){
+
+ try{
+
+  const response =
+  await axios.post(
+
+   "http://localhost:8000/generate-description",
+
+   req.body
+
+  );
+
+  res.json(
+   response.data
+  );
+
+ }
+ catch(err){
+
+  res.status(500)
+  .json({
+   message:
+   err.message
+  });
+
+ }
+
+}
+
+
 async function createProduct(
     req,
     res
@@ -62,6 +231,37 @@ async function createProduct(
 
                 minimumOrderQuantity
             );
+        const text = `
+
+${name}
+
+${description}
+
+${category.name}
+
+`;
+
+const embeddingResponse =
+await axios.post(
+
+ "http://localhost:8000/generate-embedding",
+
+ {
+  text
+ }
+
+);
+
+await ProductEmbedding
+.saveEmbedding(
+
+ product.id,
+
+ embeddingResponse
+ .data
+ .embedding
+
+);
 
         res.status(201)
             .json(product);
@@ -135,7 +335,7 @@ async function updateProduct(
 
         const {
 
-            categoryId,
+           
 
             name,
 
@@ -166,7 +366,7 @@ async function updateProduct(
 
                 productId,
 
-                categoryId,
+          
 
                 name,
 
@@ -358,6 +558,8 @@ module.exports = {
 
     getProductById,
 
-    searchProducts
+    searchProducts,
+    semanticSearch,
+    generateDescription
 
 };

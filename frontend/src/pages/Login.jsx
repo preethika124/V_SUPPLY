@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import "../styles/auth.css";
 
@@ -8,9 +7,6 @@ import {
 } from "../services/authService";
 
 function Login() {
-
-  const navigate =
-  useNavigate();
 
   const [form, setForm] =
   useState({
@@ -58,37 +54,36 @@ function Login() {
         "Login Successful"
       );
 
-    
-if(
- response.data.role ===
- "ADMIN"
-){
+      if (
+        response.data.role ===
+        "ADMIN"
+      ) {
 
- navigate("/admin");
+        window.location.href =
+        "/admin";
 
-}
-else if(
- response.data.role ===
- "SUPPLIER"
-){
+      }
+      else if (
+        response.data.role ===
+        "SUPPLIER"
+      ) {
 
- navigate(
-  "/supplier-dashboard"
- );
+        window.location.href =
+        "/supplier-dashboard";
 
-}
-else if(
- response.data.role ===
- "VENDOR"
-){
+      }
+      else if (
+        response.data.role ===
+        "VENDOR"
+      ) {
 
- navigate(
-  "/vendor-dashboard"
- );
+        window.location.href =
+        "/vendor-dashboard";
 
-}
+      }
+
     }
-    catch(err){
+    catch (err) {
 
       alert(
 
@@ -102,7 +97,7 @@ else if(
 
   };
 
-  return(
+  return (
 
     <div className="auth-container">
 

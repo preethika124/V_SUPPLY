@@ -6,6 +6,10 @@ import {
 from "../services/productService";
 
 import {
+ generateDescription
+}
+from "../services/productService";
+import {
  getCategories
 }
 from "../services/categoryService";
@@ -47,6 +51,52 @@ function CreateProduct() {
   loadCategories();
 
  }, []);
+const handleGenerateDescription =
+async()=>{
+
+ try{
+
+  const token =
+  localStorage.getItem(
+   "token"
+  );
+
+  const response =
+  await generateDescription(
+
+   {
+
+    name: form.name,
+
+    
+
+    price: form.price,
+
+    unit: form.unit
+
+   },
+
+   token
+
+  );
+
+  setForm({
+
+   ...form,
+
+   description:
+   response.data.description
+
+  });
+
+ }
+ catch(err){
+
+  console.log(err);
+
+ }
+
+};
 
  const loadCategories =
  async () => {
@@ -270,6 +320,14 @@ function CreateProduct() {
        handleChange
       }
      />
+     <button
+ type="button"
+ onClick={
+  handleGenerateDescription
+ }
+>
+ Generate Description
+</button>
 
      <input
       className=

@@ -9,104 +9,6 @@ require("../models/productModel");
 
 
 
-async function shipOrder(
-    req,
-    res
-){
-
-    try{
-
-        const order =
-        await Order
-        .getOrderById(
-            req.params.id
-        );
-
-        if(
-            order.status !==
-            "ACCEPTED"
-        ){
-
-            return res
-            .status(400)
-            .json({
-                message:
-                "Order must be accepted first"
-            });
-
-        }
-
-        const updated =
-        await Order
-        .markShipped(
-            order.id
-        );
-
-        res.json(
-            updated
-        );
-
-    }
-    catch(err){
-
-        res.status(500)
-        .json({
-            message:
-            err.message
-        });
-
-    }
-
-}
-async function deliverOrder(
-    req,
-    res
-){
-
-    try{
-
-        const order =
-        await Order
-        .getOrderById(
-            req.params.id
-        );
-
-        if(
-            order.status !==
-            "SHIPPED"
-        ){
-
-            return res
-            .status(400)
-            .json({
-                message:
-                "Order not shipped"
-            });
-
-        }
-
-        const updated =
-        await Order
-        .markDelivered(
-            order.id
-        );
-
-        res.json(
-            updated
-        );
-
-    }
-    catch(err){
-
-        res.status(500)
-        .json({
-            message:
-            err.message
-        });
-
-    }
-
-}
 
 async function placeOrder(
     req,
@@ -160,41 +62,13 @@ async function placeOrder(
             });
 
         }
-      
-        let supplierId =
-        null;
 
-        let totalAmount =
-        0;
+        
 
         for(
             const item
             of items
         ){
-
-            if(
-                supplierId ===
-                null
-            ){
-
-                supplierId =
-                item.supplier_id;
-
-            }
-
-            if(
-                supplierId !==
-                item.supplier_id
-            ){
-
-                return res
-                .status(400)
-                .json({
-                    message:
-                    "Cart contains products from different suppliers"
-                });
-
-            }
 
             if(
                 item.quantity <
@@ -224,51 +98,125 @@ async function placeOrder(
 
             }
 
-            totalAmount +=
-
-            item.quantity *
-            item.price;
-
         }
 
-        const order =
-        await Order
-        .createOrder(
-            req.vendor.id,
-            supplierId,
-            totalAmount
-        );
+       
+
+        const supplierGroups =
+        {};
 
         for(
             const item
             of items
         ){
 
-            await OrderItem
-            .createOrderItem(
+            if(
+                !supplierGroups[
+                    item.supplier_id
+                ]
+            ){
 
-                order.id,
+                supplierGroups[
+                    item.supplier_id
+                ] = [];
 
-                item.product_id,
+            }
 
-                item.quantity,
+            supplierGroups[
+                item.supplier_id
+            ].push(item);
 
-                item.price,
+        }
+
+        
+
+        const createdOrders =
+        [];
+
+        for(
+            const supplierId
+            in supplierGroups
+        ){
+
+            const supplierItems =
+            supplierGroups[
+                supplierId
+            ];
+
+            let totalAmount =
+            0;
+
+            for(
+                const item
+                of supplierItems
+            ){
+
+                totalAmount +=
 
                 item.quantity *
-                item.price
+                item.price;
+
+            }
+
+            const order =
+            await Order
+            .createOrder(
+
+                req.vendor.id,
+
+                supplierId,
+
+                totalAmount
 
             );
 
+            for(
+                const item
+                of supplierItems
+            ){
+
+                await OrderItem
+                .createOrderItem(
+
+                    order.id,
+
+                    item.product_id,
+
+                    item.quantity,
+
+                    item.price,
+
+                    item.quantity *
+                    item.price
+
+                );
+
+            }
+
+            createdOrders.push(
+                order
+            );
+
         }
+
+       
 
         await CartItem
         .clearCart(
             cart.id
         );
 
-        res.status(201)
-        .json(order);
+        res
+        .status(201)
+        .json({
+
+            message:
+            "Orders placed successfully",
+
+            orders:
+            createdOrders
+
+        });
 
     }
     catch(err){
@@ -393,107 +341,193 @@ async function getSupplierOrders(
 
 }
 
-
 async function acceptOrder(
-    req,
-    res
+ req,
+ res
 ){
 
-    try{
+ const client =
+ await db.connect();
 
-        const order =
-        await Order
-        .getOrderById(
-            req.params.id
-        );
+ try{
 
-        if(!order){
+  await client.query(
+   "BEGIN"
+  );
 
-            return res
-            .status(404)
-            .json({
-                message:
-                "Order not found"
-            });
+  const orderResult =
+  await client.query(
+  `
+  SELECT *
+  FROM orders
+  WHERE id = $1
+  FOR UPDATE
+  `,
+  [
+   req.params.id
+  ]
+  );
 
-        }
+  const order =
+  orderResult.rows[0];
 
-        if(
-            order.supplier_id !==
-            req.supplier.id
-        ){
+  if(!order){
 
-            return res
-            .status(403)
-            .json({
-                message:
-                "Unauthorized"
-            });
+   await client.query(
+    "ROLLBACK"
+   );
 
-        }
+   return res
+   .status(404)
+   .json({
+    message:
+    "Order not found"
+   });
 
-        if(
-            order.status !==
-            "PENDING"
-        ){
+  }
 
-            return res
-            .status(400)
-            .json({
-                message:
-                "Order already processed"
-            });
+  if(
+   order.supplier_id !==
+   req.supplier.id
+  ){
 
-        }
+   await client.query(
+    "ROLLBACK"
+   );
 
-        const items =
-        await OrderItem
-        .getOrderItems(
-            order.id
-        );
+   return res
+   .status(403)
+   .json({
+    message:
+    "Unauthorized"
+   });
 
-        for(
-            const item
-            of items
-        ){
+  }
 
-            await Product
-            .reduceStock(
-                item.product_id,
-                item.quantity
-            );
+  if(
+   order.status !==
+   "PENDING"
+  ){
 
-        }
+   await client.query(
+    "ROLLBACK"
+   );
 
-        const updated =
-        await Order
-        .updateStatus(
-            order.id,
-            "ACCEPTED"
-        );
+   return res
+   .status(400)
+   .json({
+    message:
+    "Order already processed"
+   });
 
-        res.json(
-            updated
-        );
+  }
 
-    }
-    catch(err){
+  const items =
+  await OrderItem
+  .getOrderItems(
+   order.id
+  );
 
-        res.status(500)
-        .json({
-            message:
-            err.message
-        });
+  for(
+   const item
+   of items
+  ){
 
-    }
+   const productResult =
+   await client.query(
+   `
+   SELECT *
+   FROM products
+   WHERE id = $1
+   FOR UPDATE
+   `,
+   [
+    item.product_id
+   ]
+   );
+
+   const product =
+   productResult.rows[0];
+
+   if(!product){
+
+    throw new Error(
+     "Product not found"
+    );
+
+   }
+
+   if(
+    product.stock <
+    item.quantity
+   ){
+
+    throw new Error(
+     `${product.name} stock insufficient`
+    );
+
+   }
+
+   await client.query(
+   `
+   UPDATE products
+   SET stock =
+   stock - $1
+   WHERE id = $2
+   `,
+   [
+    item.quantity,
+    item.product_id
+   ]
+   );
+
+  }
+
+  const updatedResult =
+  await client.query(
+  `
+  UPDATE orders
+  SET status = 'ACCEPTED'
+  WHERE id = $1
+  RETURNING *
+  `,
+  [
+   order.id
+  ]
+  );
+
+  await client.query(
+   "COMMIT"
+  );
+
+  res.json(
+   updatedResult.rows[0]
+  );
+
+ }
+ catch(err){
+
+  await client.query(
+   "ROLLBACK"
+  );
+
+  res.status(500)
+  .json({
+   message:
+   err.message
+  });
+
+ }
+ finally{
+
+  client.release();
+
+ }
 
 }
 
-/*
---------------------------------
-REJECT ORDER
---------------------------------
-*/
+
+
 async function rejectOrder(
     req,
     res
@@ -580,9 +614,7 @@ module.exports = {
 
     acceptOrder,
 
-    rejectOrder,shipOrder,
-deliverOrder,
-
+    rejectOrder,
     getOrderDetails
 
 };
